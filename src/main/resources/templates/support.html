@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Support</title></head>
+<body>
+<div layout:fragment="content">
+    <h4 class="pp-section-title mb-3"><i class="bi bi-headset me-2"></i>Support</h4>
+
+    <!-- Submit Query Form -->
+    <div class="card mb-4">
+        <div class="card-header pp-card-header">Submit a New Query</div>
+        <div class="card-body">
+            <form th:action="@{/support}" method="post">
+                <div class="mb-3">
+                    <textarea name="queryText" class="form-control" rows="4"
+                              placeholder="Describe your issue or question…" required></textarea>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn pp-btn-primary">
+                        <i class="bi bi-send me-1"></i>Submit Query
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Queries History -->
+    <h5 class="mb-3">Your Queries</h5>
+    <div th:if="${!queries.isEmpty()}" class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Query</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Reply</th>
+                    <th>Replied</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="q : ${queries}">
+                    <td th:text="${q.queryText}" style="max-width:300px;" class="text-truncate"></td>
+                    <td class="small" th:text="${q.queryTimestamp != null} ? ${#temporals.format(q.queryTimestamp, 'yyyy-MM-dd HH:mm')} : ''"></td>
+                    <td>
+                        <span class="badge" th:classappend="${q.status == 'Open'} ? 'bg-warning text-dark' : 'bg-success'"
+                              th:text="${q.status}"></span>
+                    </td>
+                    <td th:text="${q.adminReply != null} ? ${q.adminReply} : '—'" style="max-width:300px;" class="text-truncate"></td>
+                    <td class="small" th:text="${q.replyTimestamp != null} ? ${#temporals.format(q.replyTimestamp, 'yyyy-MM-dd HH:mm')} : ''"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${queries.isEmpty()}" class="text-center text-muted py-4">
+        <p>You haven't submitted any queries yet.</p>
+    </div>
+</div>
+</body>
+</html>
+

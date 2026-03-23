@@ -1,56 +1,63 @@
 package org.petpals.model;
 
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "products")
 public class Product {
-  private int id;
-  private String name;
-  private double price;
-  private String image; // filename or path
-  private String category;
 
-  public Product(int id, String name, double price, String image, String category) {
-    this.id = id;
-    this.name = name;
-    this.price = price;
-    this.image = image;
-    this.category = category;
-  }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  // Getters
-  public int getId() {
-    return id;
-  }
+    @Column(nullable = false, length = 150)
+    private String name;
 
-  public String getName() {
-    return name;
-  }
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
-  public double getPrice() {
-    return price;
-  }
+    @Column(length = 255)
+    private String image;
 
-  public String getImage() {
-    return image;
-  }
+    @Column(length = 100)
+    private String category;
 
-  public String getCategory() {
-    return category;
-  }
+    public Product() {}
 
-  @Override
-  public String toString() {
-    return name + " - $" + String.format("%.2f", price);
-  }
+    public Product(String name, BigDecimal price, String image, String category) {
+        this.name = name;
+        this.price = price;
+        this.image = image;
+        this.category = category;
+    }
 
-  @Override
-  public int hashCode() {
-    return Integer.hashCode(id);
-  }
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
-    Product other = (Product) obj;
-    return id == other.id;
-  }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public BigDecimal getPrice() { return price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
+
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return id != null && id.equals(product.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

@@ -1,91 +1,94 @@
 package org.petpals.model;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "testimonials")
 public class Testimonial {
 
-  public enum Status {
-    PENDING, APPROVED, REJECTED;
+    public enum Status {
+        PENDING, APPROVED, REJECTED;
 
-    // Helper to convert string from DB to enum
-    public static Status fromString(String statusStr) {
-        if (statusStr == null) {
-            return PENDING; // Or throw an exception, depending on desired handling
-        }
-        try {
-            return Status.valueOf(statusStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            // Log the error or handle unknown status
-            System.err.println("Unknown testimonial status string: " + statusStr);
-            return PENDING; // Default or fallback status
+        public static Status fromString(String s) {
+            if (s == null) return PENDING;
+            try { return Status.valueOf(s.toUpperCase()); }
+            catch (IllegalArgumentException e) { return PENDING; }
         }
     }
-  }
 
-  private int id;
-  private int userId; // Added
-  private String name;
-  private String location;
-  private String image; // Submitter's image
-  private String petName; // Optional pet name
-  private String text;
-  private int rating; // Optional rating
-  private Status status; // Added
-  private Timestamp submittedAt; // Added
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  // Constructor updated to include new fields
-  public Testimonial(int id, int userId, String name, String location, String image, String petName, String text, int rating, Status status, Timestamp submittedAt) {
-    this.id = id;
-    this.userId = userId;
-    this.name = name;
-    this.location = location;
-    this.image = image;
-    this.petName = petName;
-    this.text = text;
-    this.rating = rating;
-    this.status = status;
-    this.submittedAt = submittedAt;
-  }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-  // Getters
-  public int getId() {
-    return id;
-  }
+    @Column(nullable = false, length = 100)
+    private String name;
 
-  public int getUserId() { return userId; } // Added getter
+    @Column(length = 150)
+    private String location;
 
-  public String getName() {
-    return name;
-  }
+    @Column(length = 255)
+    private String image;
 
-  public String getLocation() {
-    return location;
-  }
+    @Column(name = "petname", length = 100)
+    private String petName;
 
-  public String getImage() {
-    return image;
-  }
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String text;
 
-  public String getPetName() {
-    return petName;
-  }
+    private Integer rating;
 
-  public String getText() {
-    return text;
-  }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Status status = Status.PENDING;
 
-  public int getRating() {
-    return rating;
-  }
+    @Column(name = "submitted_at")
+    private LocalDateTime submittedAt;
 
-  public Status getStatus() { return status; } // Added getter
+    public Testimonial() {}
 
-  public Timestamp getSubmittedAt() { return submittedAt; } // Added getter
+    @PrePersist
+    protected void onCreate() {
+        if (submittedAt == null) {
+            submittedAt = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = Status.PENDING;
+        }
+    }
 
-  @Override
-  public String toString() {
-    // Updated toString for better representation, especially in admin lists
-    return String.format("ID: %d, User: %d, Name: %s, Pet: %s, Status: %s",
-                         id, userId, name, (petName != null ? petName : "N/A"), status);
-  }
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
+
+    public String getPetName() { return petName; }
+    public void setPetName(String petName) { this.petName = petName; }
+
+    public String getText() { return text; }
+    public void setText(String text) { this.text = text; }
+
+    public Integer getRating() { return rating; }
+    public void setRating(Integer rating) { this.rating = rating; }
+
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
+
+    public LocalDateTime getSubmittedAt() { return submittedAt; }
+    public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
 }

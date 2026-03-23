@@ -1,69 +1,56 @@
 package org.petpals.model;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+@Entity
+@Table(name = "order_items")
 public class OrderItem {
-    private int id; // Database ID for the order item itself
-    private int orderId; // Foreign key to the orders table
-    private int productId; // Foreign key to the products table
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
+    @Column(nullable = false)
     private int quantity;
-    private BigDecimal priceAtTimeOfOrder; // Price of the product when the order was placed
 
-    // Constructor used when creating an item to be saved
-    public OrderItem(int productId, int quantity, BigDecimal priceAtTimeOfOrder) {
-        this.productId = productId;
-        this.quantity = quantity;
-        this.priceAtTimeOfOrder = priceAtTimeOfOrder;
-        // orderId will be set by the OrderDAO when saving
-    }
+    @Column(name = "price_at_time_of_order", nullable = false, precision = 10, scale = 2)
+    private BigDecimal priceAtTimeOfOrder;
 
-    // Constructor used when loading from the database (includes all IDs)
-    public OrderItem(int id, int orderId, int productId, int quantity, BigDecimal priceAtTimeOfOrder) {
-        this.id = id;
-        this.orderId = orderId;
-        this.productId = productId;
+    public OrderItem() {}
+
+    public OrderItem(Product product, int quantity, BigDecimal priceAtTimeOfOrder) {
+        this.product = product;
         this.quantity = quantity;
         this.priceAtTimeOfOrder = priceAtTimeOfOrder;
     }
 
-    // Getters
-    public int getId() {
-        return id;
+    @Transient
+    public BigDecimal getSubtotal() {
+        return priceAtTimeOfOrder.multiply(BigDecimal.valueOf(quantity));
     }
 
-    public int getOrderId() {
-        return orderId;
-    }
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public int getProductId() {
-        return productId;
-    }
+    public Order getOrder() { return order; }
+    public void setOrder(Order order) { this.order = order; }
 
-    public int getQuantity() {
-        return quantity;
-    }
+    public Product getProduct() { return product; }
+    public void setProduct(Product product) { this.product = product; }
 
-    public BigDecimal getPriceAtTimeOfOrder() {
-        return priceAtTimeOfOrder;
-    }
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    // Setters (primarily for orderId when saving)
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    @Override
-    public String toString() {
-        return "OrderItem{" +
-               "id=" + id +
-               ", orderId=" + orderId +
-               ", productId=" + productId +
-               ", quantity=" + quantity +
-               ", priceAtTimeOfOrder=" + priceAtTimeOfOrder +
-               '}';
-    }
+    public BigDecimal getPriceAtTimeOfOrder() { return priceAtTimeOfOrder; }
+    public void setPriceAtTimeOfOrder(BigDecimal priceAtTimeOfOrder) { this.priceAtTimeOfOrder = priceAtTimeOfOrder; }
 }
