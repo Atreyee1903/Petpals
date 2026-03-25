@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: petpals-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: petpals
+      POSTGRES_USER: petpals_user
+      POSTGRES_PASSWORD: petpals_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - petpals-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U petpals_user -d petpals"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  petpals-network:
+    driver: bridge

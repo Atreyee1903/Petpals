@@ -1,110 +1,104 @@
 package org.petpals.model;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "orders")
 public class Order {
-    private int id;
-    private int userId;
-    private List<OrderItem> items;
-    private BigDecimal totalAmount;
-    private LocalDateTime orderDate;
-    private String status; // e.g., "Pending", "Shipped", "Delivered"
 
-    // Shipping Information
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalAmount;
+
+    @Column(name = "shipping_street", length = 255)
     private String shippingStreet;
+
+    @Column(name = "shipping_city", length = 100)
     private String shippingCity;
+
+    @Column(name = "shipping_state", length = 100)
     private String shippingState;
+
+    @Column(name = "shipping_postal_code", length = 20)
     private String shippingPostalCode;
+
+    @Column(name = "shipping_phone", length = 20)
     private String shippingPhone;
 
-    // Payment Information (e.g., UPI ID used)
-    private String paymentUpiId; // Example, adapt as needed
+    @Column(name = "payment_upi_id", length = 100)
+    private String paymentUpiId;
 
-    public Order(int userId, BigDecimal totalAmount, String shippingStreet, String shippingCity,
-                 String shippingState, String shippingPostalCode, String shippingPhone, String paymentUpiId) {
-        this.userId = userId;
-        this.items = new ArrayList<>(); // Initialize empty list
-        this.totalAmount = totalAmount;
-        this.orderDate = LocalDateTime.now(); // Set current date/time
-        this.status = "Pending"; // Default status
-        this.shippingStreet = shippingStreet;
-        this.shippingCity = shippingCity;
-        this.shippingState = shippingState;
-        this.shippingPostalCode = shippingPostalCode;
-        this.shippingPhone = shippingPhone;
-        this.paymentUpiId = paymentUpiId;
+    @Column(nullable = false, length = 50)
+    private String status = "Pending";
+
+    @Column(name = "order_date")
+    private LocalDateTime orderDate;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
+
+    public Order() {}
+
+    @PrePersist
+    protected void onCreate() {
+        if (orderDate == null) {
+            orderDate = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = "Pending";
+        }
     }
 
-    // Getters
-    public int getId() {
-        return id;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public List<OrderItem> getItems() {
-        return items;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public LocalDateTime getOrderDate() {
-        return orderDate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getShippingStreet() {
-        return shippingStreet;
-    }
-
-    public String getShippingCity() {
-        return shippingCity;
-    }
-
-    public String getShippingState() {
-        return shippingState;
-    }
-
-    public String getShippingPostalCode() {
-        return shippingPostalCode;
-    }
-
-    public String getShippingPhone() {
-        return shippingPhone;
-    }
-
-    public String getPaymentUpiId() {
-        return paymentUpiId;
-    }
-
-    // Setters
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    // Setter for Order Date (needed when loading from DB)
-    public void setOrderDate(LocalDateTime orderDate) {
-        this.orderDate = orderDate;
-    }
-
-    // Method to add items
     public void addItem(OrderItem item) {
-        this.items.add(item);
-        // Note: You might want to recalculate totalAmount here if items are added after construction,
-        // but for saving an order post-checkout, the total is usually fixed.
+        items.add(item);
+        item.setOrder(this);
     }
+
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public BigDecimal getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
+
+    public String getShippingStreet() { return shippingStreet; }
+    public void setShippingStreet(String shippingStreet) { this.shippingStreet = shippingStreet; }
+
+    public String getShippingCity() { return shippingCity; }
+    public void setShippingCity(String shippingCity) { this.shippingCity = shippingCity; }
+
+    public String getShippingState() { return shippingState; }
+    public void setShippingState(String shippingState) { this.shippingState = shippingState; }
+
+    public String getShippingPostalCode() { return shippingPostalCode; }
+    public void setShippingPostalCode(String shippingPostalCode) { this.shippingPostalCode = shippingPostalCode; }
+
+    public String getShippingPhone() { return shippingPhone; }
+    public void setShippingPhone(String shippingPhone) { this.shippingPhone = shippingPhone; }
+
+    public String getPaymentUpiId() { return paymentUpiId; }
+    public void setPaymentUpiId(String paymentUpiId) { this.paymentUpiId = paymentUpiId; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public LocalDateTime getOrderDate() { return orderDate; }
+    public void setOrderDate(LocalDateTime orderDate) { this.orderDate = orderDate; }
+
+    public List<OrderItem> getItems() { return items; }
+    public void setItems(List<OrderItem> items) { this.items = items; }
 }

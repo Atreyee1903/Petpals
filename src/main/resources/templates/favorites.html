@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>My Favorites</title></head>
+<body>
+<div layout:fragment="content">
+    <h4 class="pp-section-title mb-3"><i class="bi bi-heart me-2"></i>My Favorite Pets</h4>
+
+    <div class="row g-3" th:if="${!pets.isEmpty()}">
+        <div class="col-xl-3 col-lg-4 col-md-6" th:each="pet : ${pets}">
+            <div class="card pp-card h-100">
+                <img th:src="@{'/images/pets/' + ${pet.image}}" class="card-img-top pp-card-img"
+                     th:alt="${pet.name}" onerror="this.src='/images/pets/default_placeholder.png'"/>
+                <div class="card-body text-center">
+                    <h6 class="card-title fw-bold" th:text="${pet.name}"></h6>
+                    <p class="text-muted small mb-1" th:text="${pet.species}"></p>
+                    <p class="text-muted small mb-2" th:text="${pet.breed + ' • ' + pet.age}"></p>
+                </div>
+                <div class="card-footer bg-transparent text-center border-0 pb-3">
+                    <a th:href="@{'/pets/' + ${pet.id}}" class="btn pp-btn-primary btn-sm">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${pets.isEmpty()}" class="text-center text-muted py-5">
+        <i class="bi bi-heart display-4"></i>
+        <p class="mt-2">You haven't added any pets to your favorites yet.</p>
+        <p>Click "View Details" on a pet and use the <i class="bi bi-heart"></i> button!</p>
+        <a th:href="@{/home}" class="btn pp-btn-primary mt-2">Browse Pets</a>
+    </div>
+</div>
+</body>
+</html>
+
