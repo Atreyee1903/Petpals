@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Manage Orders</title></head>
+<body>
+<div layout:fragment="content">
+    <h4 class="pp-section-title mb-3"><i class="bi bi-receipt me-2"></i>Order Management</h4>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr><th>ID</th><th>User</th><th class="text-end">Total</th><th>Date</th><th>Status</th><th>City</th><th>Phone</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="o : ${orders}">
+                    <td th:text="${o.id}"></td>
+                    <td th:text="${o.user.username}"></td>
+                    <td class="text-end" th:text="'₹' + ${#numbers.formatDecimal(o.totalAmount, 1, 2)}"></td>
+                    <td class="small" th:text="${o.orderDate != null} ? ${#temporals.format(o.orderDate, 'yyyy-MM-dd HH:mm')} : 'N/A'"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${o.status == 'Pending'} ? 'bg-warning text-dark' :
+                                             (${o.status == 'Shipped'} ? 'bg-info' :
+                                             (${o.status == 'Delivered'} ? 'bg-success' :
+                                             (${o.status == 'Cancelled'} ? 'bg-danger' : 'bg-secondary')))"
+                              th:text="${o.status}"></span>
+                    </td>
+                    <td th:text="${o.shippingCity}"></td>
+                    <td th:text="${o.shippingPhone}"></td>
+                    <td>
+                        <form th:action="@{/admin/orders/update-status}" method="post" class="d-flex align-items-center">
+                            <input type="hidden" name="orderId" th:value="${o.id}"/>
+                            <select name="newStatus" class="form-select form-select-sm me-1" style="width:130px;">
+                                <option th:each="s : ${ {'Pending','Processing','Shipped','Delivered','Cancelled'} }"
+                                        th:value="${s}" th:text="${s}" th:selected="${o.status == s}"></option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary"><i class="bi bi-check-lg"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${orders.isEmpty()}" class="text-center text-muted py-4">No orders found.</div>
+</div>
+</body>
+</html>
+

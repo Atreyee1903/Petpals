@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Manage Support</title></head>
+<body>
+<div layout:fragment="content">
+    <h4 class="pp-section-title mb-3"><i class="bi bi-headset me-2"></i>Support Query Management</h4>
+
+    <div th:if="${!queries.isEmpty()}" class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr><th>ID</th><th>User</th><th>Query</th><th>Submitted</th><th>Status</th><th>Reply</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="q : ${queries}">
+                    <td th:text="${q.queryId}"></td>
+                    <td th:text="${q.user.username}"></td>
+                    <td style="max-width:250px;" class="text-truncate" th:text="${q.queryText}" th:title="${q.queryText}"></td>
+                    <td class="small" th:text="${q.queryTimestamp != null} ? ${#temporals.format(q.queryTimestamp, 'yyyy-MM-dd HH:mm')} : ''"></td>
+                    <td>
+                        <span class="badge" th:classappend="${q.status == 'Open'} ? 'bg-warning text-dark' : 'bg-success'"
+                              th:text="${q.status}"></span>
+                    </td>
+                    <td style="max-width:200px;" class="text-truncate small"
+                        th:text="${q.adminReply != null} ? ${q.adminReply} : '—'" th:title="${q.adminReply}"></td>
+                    <td class="text-nowrap">
+                        <button class="btn btn-sm btn-outline-primary me-1" th:if="${q.status == 'Open'}"
+                                data-bs-toggle="modal" data-bs-target="#replyModal"
+                                th:data-query-id="${q.queryId}" th:data-query-text="${q.queryText}"
+                                onclick="openReplyModal(this)">
+                            <i class="bi bi-reply me-1"></i>Reply
+                        </button>
+                        <form th:action="@{'/admin/support/delete/' + ${q.queryId}}" method="post" class="d-inline"
+                              onsubmit="return confirm('Delete this query?')">
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${queries.isEmpty()}" class="text-center text-muted py-4">No support queries found.</div>
+
+    <!-- Reply Modal -->
+    <div class="modal fade" id="replyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/admin/support/reply}" method="post">
+                    <div class="modal-header pp-modal-header">
+                        <h5 class="modal-title">Reply to Query</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="queryId" id="replyQueryId"/>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Original Query:</label>
+                            <p id="replyQueryText" class="border rounded p-2 bg-light small"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Admin Reply *</label>
+                            <textarea name="replyText" class="form-control" rows="4" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn pp-btn-primary">Submit Reply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+<script>
+function openReplyModal(btn) {
+    document.getElementById('replyQueryId').value = btn.dataset.queryId;
+    document.getElementById('replyQueryText').textContent = btn.dataset.queryText;
+}
+</script>
+</th:block>
+</body>
+</html>
+

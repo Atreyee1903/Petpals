@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head><title>Home</title></head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Pets Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="pp-section-title mb-0"><i class="bi bi-heart-pulse me-2"></i>Meet Our Furry Friends</h4>
+        <form th:action="@{/home}" method="get" class="d-flex align-items-center">
+            <select name="species" class="form-select form-select-sm" style="width:160px;" onchange="this.form.submit()">
+                <option value="All" th:selected="${selectedSpecies == 'All'}">All Species</option>
+                <option th:each="sp : ${speciesList}" th:value="${sp}" th:text="${sp}"
+                        th:selected="${selectedSpecies == sp}"></option>
+            </select>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-4" th:if="${!pets.isEmpty()}">
+        <div class="col-xl-3 col-lg-4 col-md-6" th:each="pet : ${pets}">
+            <div class="card pp-card h-100">
+                <img th:src="@{'/images/pets/' + ${pet.image}}" class="card-img-top pp-card-img"
+                     th:alt="${pet.name}" onerror="this.src='/images/pets/default_placeholder.png'"/>
+                <div class="card-body text-center">
+                    <h6 class="card-title fw-bold" th:text="${pet.name}"></h6>
+                    <p class="text-muted small mb-1" th:text="${pet.species}"></p>
+                    <p class="text-muted small mb-2" th:text="${pet.breed + ' • ' + pet.age}"></p>
+                </div>
+                <div class="card-footer bg-transparent text-center border-0 pb-3">
+                    <a th:href="@{'/pets/' + ${pet.id}}" class="btn pp-btn-primary btn-sm">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${pets.isEmpty()}" class="text-center text-muted py-5">
+        <i class="bi bi-emoji-frown display-4"></i>
+        <p class="mt-2">No pets available. Check back soon!</p>
+    </div>
+
+    <hr class="my-4"/>
+
+    <!-- Testimonials Section -->
+    <h4 class="pp-section-title mb-3"><i class="bi bi-chat-heart me-2"></i>Happy Tails: Adoption Stories</h4>
+
+    <div th:if="${!testimonials.isEmpty()}">
+        <div class="row g-3 mb-3">
+            <div class="col-md-6 col-lg-4" th:each="t : ${testimonials}">
+                <div class="card pp-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <img th:if="${t.image != null}" th:src="@{'/images/testimonials/' + ${t.image}}"
+                                 class="rounded-circle me-2" width="40" height="40"
+                                 onerror="this.src='/images/testimonials/default_placeholder.png'"/>
+                            <div>
+                                <strong th:text="${t.name}"></strong>
+                                <span class="text-muted small" th:if="${t.location != null}" th:text="' — ' + ${t.location}"></span>
+                            </div>
+                        </div>
+                        <p class="mb-1 small" th:text="${t.text}"></p>
+                        <div th:if="${t.petName != null}" class="text-muted small">
+                            <i class="bi bi-heart-pulse-fill text-danger me-1"></i>Adopted: <span th:text="${t.petName}"></span>
+                        </div>
+                        <div th:if="${t.rating != null}" class="mt-1">
+                            <span th:each="i : ${#numbers.sequence(1, t.rating)}" class="text-warning">★</span>
+                            <span th:each="i : ${#numbers.sequence(t.rating + 1, 5)}" class="text-muted">★</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${testimonials.isEmpty()}" class="text-muted text-center py-3">
+        No adoption stories shared yet. Be the first!
+    </div>
+
+    <!-- Submit Testimonial (non-admin only) -->
+    <div sec:authorize="!hasRole('ADMIN')" class="text-center mt-3">
+        <button class="btn pp-btn-accent" data-bs-toggle="modal" data-bs-target="#testimonialModal">
+            <i class="bi bi-pencil-square me-1"></i>Share Your Adoption Story
+        </button>
+    </div>
+
+    <!-- Testimonial Modal -->
+    <div class="modal fade" id="testimonialModal" tabindex="-1" sec:authorize="!hasRole('ADMIN')">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/testimonials/submit}" method="post">
+                    <div class="modal-header pp-modal-header">
+                        <h5 class="modal-title">Share Your Adoption Story</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Your Name *</label>
+                            <input type="text" name="name" class="form-control" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-control"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pet's Name</label>
+                            <input type="text" name="petName" class="form-control"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Your Story *</label>
+                            <textarea name="text" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Rating</label>
+                                <select name="rating" class="form-select">
+                                    <option value="5">★★★★★ (5)</option>
+                                    <option value="4">★★★★ (4)</option>
+                                    <option value="3">★★★ (3)</option>
+                                    <option value="2">★★ (2)</option>
+                                    <option value="1">★ (1)</option>
+                                </select>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Image filename</label>
+                                <input type="text" name="image" class="form-control" placeholder="Optional"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn pp-btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

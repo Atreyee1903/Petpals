@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Manage Pets</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="pp-section-title mb-0"><i class="bi bi-heart-pulse me-2"></i>Pet Management</h4>
+        <button class="btn pp-btn-primary" data-bs-toggle="modal" data-bs-target="#petModal" onclick="openPetForm()">
+            <i class="bi bi-plus-lg me-1"></i>Add Pet
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr><th>ID</th><th>Name</th><th>Species</th><th>Breed</th><th>Age</th><th>Location</th><th>Image</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${pets}">
+                    <td th:text="${p.id}"></td>
+                    <td th:text="${p.name}"></td>
+                    <td th:text="${p.species}"></td>
+                    <td th:text="${p.breed}"></td>
+                    <td th:text="${p.age}"></td>
+                    <td th:text="${p.location}"></td>
+                    <td><img th:src="@{'/images/pets/' + ${p.image}}" width="50" height="50" style="object-fit:cover;border-radius:4px;"
+                             onerror="this.src='/images/pets/default_placeholder.png'"/></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="openPetForm(this)"
+                                th:data-id="${p.id}" th:data-name="${p.name}" th:data-species="${p.species}"
+                                th:data-breed="${p.breed}" th:data-age="${p.age}" th:data-image="${p.image}"
+                                th:data-description="${p.description}" th:data-location="${p.location}"
+                                th:data-traits="${p.traits}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <form th:action="@{'/admin/pets/delete/' + ${p.id}}" method="post" class="d-inline"
+                              onsubmit="return confirm('Delete this pet?')">
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pet Modal -->
+    <div class="modal fade" id="petModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="petForm" th:action="@{/admin/pets/save}" method="post">
+                    <div class="modal-header pp-modal-header">
+                        <h5 class="modal-title" id="petModalTitle">Add Pet</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="petId"/>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Name *</label>
+                                <input type="text" name="name" id="petName" class="form-control" required/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Species *</label>
+                                <select name="species" id="petSpecies" class="form-select" required>
+                                    <option value="DOG">DOG</option>
+                                    <option value="CAT">CAT</option>
+                                    <option value="BIRD">BIRD</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Breed *</label>
+                                <input type="text" name="breed" id="petBreed" class="form-control" required/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Age *</label>
+                                <input type="text" name="age" id="petAge" class="form-control" required/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Image Filename *</label>
+                                <input type="text" name="image" id="petImage" class="form-control" required/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Location *</label>
+                                <input type="text" name="location" id="petLocation" class="form-control" required/>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Traits (comma-separated)</label>
+                                <input type="text" name="traits" id="petTraits" class="form-control" placeholder="Friendly, Playful"/>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" id="petDescription" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn pp-btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+<script>
+function openPetForm(btn) {
+    const m = document.getElementById('petModal');
+    if (btn && btn.dataset.id) {
+        document.getElementById('petModalTitle').textContent = 'Edit Pet';
+        document.getElementById('petId').value = btn.dataset.id;
+        document.getElementById('petName').value = btn.dataset.name;
+        document.getElementById('petSpecies').value = btn.dataset.species;
+        document.getElementById('petBreed').value = btn.dataset.breed;
+        document.getElementById('petAge').value = btn.dataset.age;
+        document.getElementById('petImage').value = btn.dataset.image;
+        document.getElementById('petLocation').value = btn.dataset.location;
+        document.getElementById('petTraits').value = btn.dataset.traits || '';
+        document.getElementById('petDescription').value = btn.dataset.description || '';
+        new bootstrap.Modal(m).show();
+    } else {
+        document.getElementById('petModalTitle').textContent = 'Add Pet';
+        document.getElementById('petForm').reset();
+        document.getElementById('petId').value = '';
+    }
+}
+</script>
+</th:block>
+</body>
+</html>
+

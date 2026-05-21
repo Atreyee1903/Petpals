@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>User Detail - Admin</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <a href="/admin/users" class="btn btn-outline-primary mb-3">Back to Users</a>
+    
+    <div class="card pp-card mb-4">
+        <div class="card-body">
+            <h5 th:text="${user.fullName}">User Name</h5>
+            <p><strong>Username:</strong> <span th:text="${user.username}">username</span></p>
+            <p><strong>Email:</strong> <span th:text="${user.email}">email</span></p>
+            <p><strong>Phone:</strong> <span th:text="${user.phone}">phone</span></p>
+            <p><strong>Address:</strong> <span th:text="${user.address}">address</span></p>
+            <p><strong>Orders:</strong> <span th:text="${user.ordersCount}">0</span></p>
+            <p><strong>Total Spent:</strong> <strong th:text="${user.totalSpent}">0</strong></p>
+            
+            <th:block th:if="${!user.admin}">
+                <th:block th:if="${user.blocked}">
+                    <form action="#" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-success">Unblock User</button>
+                    </form>
+                </th:block>
+                <th:block th:if="${!user.blocked}">
+                    <button class="btn btn-warning">Block User</button>
+                </th:block>
+            </th:block>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card pp-card">
+                <div class="card-header">
+                    <h6>Recent Activities</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr th:each="activity : ${userActivities}">
+                            <td th:text="${activity.action}">Action</td>
+                            <td th:text="${#temporals.format(activity.timestamp, 'dd/MM HH:mm')}">Time</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card pp-card">
+                <div class="card-header">
+                    <h6>Recent Orders</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr th:each="order : ${userOrders}">
+                            <td>#<span th:text="${order.id}">123</span></td>
+                            <td th:text="${order.orderDate}">Date</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            text-decoration: none !important;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            color: white;
+        }
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .metric-label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        .activity-badge {
+            font-size: 0.75rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .activity-login {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .activity-edit {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .activity-block {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .admin-nav {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .admin-nav a {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .admin-nav a:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <h4 class="pp-section-title mb-4"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h4>
+    
+    <!-- Admin Navigation -->
+    <div class="admin-nav">
+        <a href="/admin/dashboard"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/admin/users"><i class="fas fa-users"></i> Users</a>
+        <a href="/admin/analytics"><i class="fas fa-chart-bar"></i> Analytics</a>
+        <a href="/admin/activities"><i class="fas fa-history"></i> Activities</a>
+        <a href="/admin/blocked-users"><i class="fas fa-ban"></i> Blocked Users</a>
+    </div>
+
+    <!-- Metrics Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <a href="/admin/users" class="metric-card text-center">
+                <div class="metric-value" th:text="${metrics.get('totalUsers')}">0</div>
+                <div class="metric-label">Total Users</div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card text-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="metric-value" th:text="${metrics.get('activeUsers')}">0</div>
+                <div class="metric-label">Active Users</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="metric-value" th:text="${metrics.get('blockedUsers')}">0</div>
+                <div class="metric-label">Blocked Users</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <a href="/admin/orders" class="metric-card text-center" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="metric-value" th:text="${metrics.get('totalOrders')}">0</div>
+                <div class="metric-label">Total Orders</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Revenue Card -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-12">
+            <div class="card pp-card p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Total Revenue</h6>
+                        <h2 class="mb-0" th:text="${'₹ ' + metrics.get('totalRevenue')}">₹ 0</h2>
+                    </div>
+                    <div style="font-size: 3rem; color: rgba(102,126,234,0.2);">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities Table -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card pp-card">
+                <div class="card-body">
+                    <h6 class="card-title mb-3"><i class="fas fa-history me-2"></i>Recent Activities</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="activity : ${recentActivities}">
+                                    <td class="text-truncate" th:text="${activity.userName}">User</td>
+                                    <td>
+                                        <span th:class="'activity-badge activity-' + ${activity.action.toLowerCase()}"
+                                              th:text="${activity.action}">ACTION</span>
+                                    </td>
+                                    <td>
+                                        <small th:text="${#temporals.format(activity.timestamp, 'HH:mm')}">Time</small>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentActivities)}">
+                                    <td colspan="3" class="text-center text-muted">No activities</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="/admin/activities" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Customers Table -->
+        <div class="col-md-6">
+            <div class="card pp-card">
+                <div class="card-body">
+                    <h6 class="card-title mb-3"><i class="fas fa-star me-2"></i>Top Customers</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Orders</th>
+                                    <th>Spent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="customer : ${topCustomers}">
+                                    <td class="text-truncate" th:text="${customer.fullName}">Name</td>
+                                    <td th:text="${customer.ordersCount}">0</td>
+                                    <td class="text-success">
+                                        <strong th:text="${'₹ ' + customer.totalSpent}">₹ 0</strong>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(topCustomers)}">
+                                    <td colspan="3" class="text-center text-muted">No customers</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="/admin/users" class="btn btn-sm btn-outline-primary">View All Users</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

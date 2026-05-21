@@ -1,0 +1,140 @@
+/* ── PetPals Custom Theme ──
+   Matching the original Swing UI color palette:
+   Background:   #f8f7f3 (warm off-white)
+   Primary:      #4682B4 (Steel Blue)
+   Primary Light: #87CEFA (Light Sky Blue)
+   Accent:       #E68C46 (Soft Orange)
+   Text Primary: #282828
+   Text Secondary: #646464
+   Price:        #006E32 (Dark Green)
+   Success:      #3CB371
+   Error:        #DC3545
+   Border:       #D2D2D2
+*/
+
+:root {
+    --pp-bg: #f8f7f3;
+    --pp-primary: #4682B4;
+    --pp-primary-light: #87CEFA;
+    --pp-accent: #E68C46;
+    --pp-text: #282828;
+    --pp-text-secondary: #646464;
+    --pp-price: #006E32;
+    --pp-success: #3CB371;
+    --pp-error: #DC3545;
+    --pp-border: #D2D2D2;
+}
+
+body {
+    background-color: var(--pp-bg);
+    color: var(--pp-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ── Navbar ── */
+.pp-navbar {
+    background: linear-gradient(135deg, var(--pp-primary), #3a6d96);
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.pp-navbar .navbar-brand { font-size: 1.3rem; }
+.pp-admin-link { color: var(--pp-accent) !important; font-weight: 600; }
+
+/* ── Auth Pages ── */
+.pp-auth-body { background: linear-gradient(135deg, var(--pp-primary), #3a6d96); }
+.pp-auth-card { border: none; border-radius: 12px; max-width: 400px; width: 100%; }
+
+/* ── Buttons ── */
+.pp-btn-primary {
+    background-color: var(--pp-primary);
+    border-color: var(--pp-primary);
+    color: #fff;
+}
+.pp-btn-primary:hover {
+    background-color: #3a6d96;
+    border-color: #3a6d96;
+    color: #fff;
+}
+.pp-btn-accent {
+    background-color: var(--pp-accent);
+    border-color: var(--pp-accent);
+    color: #fff;
+}
+.pp-btn-accent:hover {
+    background-color: #d07a38;
+    border-color: #d07a38;
+    color: #fff;
+}
+
+/* ── Links ── */
+.pp-link { color: var(--pp-primary); text-decoration: none; font-weight: 500; }
+.pp-link:hover { color: #3a6d96; text-decoration: underline; }
+
+/* ── Text helpers ── */
+.pp-primary-text { color: var(--pp-primary); }
+.pp-accent-text { color: var(--pp-accent); }
+.pp-price { color: var(--pp-price); }
+
+/* ── Section Titles ── */
+.pp-section-title {
+    color: var(--pp-text);
+    font-weight: 600;
+    border-bottom: 3px solid var(--pp-primary);
+    padding-bottom: .4rem;
+    display: inline-block;
+}
+
+/* ── Cards ── */
+.pp-card {
+    border: 1px solid var(--pp-border);
+    border-radius: 10px;
+    transition: transform .2s, box-shadow .2s;
+    overflow: hidden;
+}
+.pp-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+}
+.pp-card-img {
+    height: 180px;
+    object-fit: cover;
+}
+
+/* ── Card / Modal Headers ── */
+.pp-card-header, .pp-modal-header {
+    background-color: var(--pp-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ── Badges ── */
+.pp-badge {
+    background-color: var(--pp-primary-light);
+    color: var(--pp-text);
+    font-weight: 500;
+    padding: .35em .65em;
+    border-radius: 20px;
+}
+
+/* ── Favorite button ── */
+.pp-fav-btn { border-radius: 50%; width: 38px; height: 38px; padding: 0; font-size: 1.1rem; }
+
+/* ── Table styling ── */
+.table thead th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+    font-size: .9rem;
+    white-space: nowrap;
+}
+
+/* ── Form tweaks ── */
+.form-control:focus, .form-select:focus {
+    border-color: var(--pp-primary);
+    box-shadow: 0 0 0 .2rem rgba(70, 130, 180, .25);
+}
+
+/* ── Responsive fine-tuning ── */
+@media (max-width: 768px) {
+    .pp-card-img { height: 140px; }
+    .pp-section-title { font-size: 1.1rem; }
+}
+

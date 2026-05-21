@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Pet Details</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card pp-card shadow-sm">
+                <div class="row g-0">
+                    <div class="col-md-5">
+                        <img th:src="@{'/images/pets/' + ${pet.image}}" class="img-fluid rounded-start h-100"
+                             style="object-fit:cover;" th:alt="${pet.name}"
+                             onerror="this.src='/images/pets/default_placeholder.png'"/>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h3 class="card-title fw-bold" th:text="${pet.name}"></h3>
+                                <button class="btn btn-outline-danger btn-sm pp-fav-btn"
+                                        th:data-pet-id="${pet.id}"
+                                        th:title="${isFavorite} ? 'Remove from favorites' : 'Add to favorites'"
+                                        onclick="toggleFav(this)">
+                                    <i th:class="${isFavorite} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+                                </button>
+                            </div>
+                            <p class="text-muted" th:text="${pet.species + ' — ' + pet.breed}"></p>
+                            <p><strong>Age:</strong> <span th:text="${pet.age}"></span></p>
+                            <p><strong>Location:</strong> <span th:text="${pet.location}"></span></p>
+
+                            <h6 class="mt-3">Personality &amp; Traits</h6>
+                            <div class="mb-3">
+                                <span th:each="trait : ${pet.traitsList}" class="badge pp-badge me-1 mb-1" th:text="${trait}"></span>
+                            </div>
+
+                            <h6>About <span th:text="${pet.name}"></span></h6>
+                            <p class="text-muted" th:text="${pet.description}"></p>
+
+                            <!-- Contact Info (generated from location) -->
+                            <div class="card mt-3">
+                                <div class="card-header pp-card-header small fw-bold">Contact Information</div>
+                                <div class="card-body small">
+                                    <p class="mb-1"><strong>Organization:</strong> <span th:text="${pet.location}"></span></p>
+                                    <p class="mb-1"><strong>Email:</strong>
+                                        <span th:text="${#strings.replace(#strings.toLowerCase(pet.location), ' ', '') + '@petpals-example.org'}"></span></p>
+                                    <p class="mb-0"><strong>Phone:</strong> +91 70000 10000</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a th:href="@{/home}" class="btn btn-secondary"><i class="bi bi-arrow-left me-1"></i>Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+<script>
+function toggleFav(btn) {
+    const petId = btn.dataset.petId;
+    postJson('/api/favorites/toggle', { petId: petId }).then(data => {
+        if (data.success) {
+            const icon = btn.querySelector('i');
+            icon.className = data.favorited ? 'bi bi-heart-fill' : 'bi bi-heart';
+            btn.title = data.favorited ? 'Remove from favorites' : 'Add to favorites';
+        }
+    });
+}
+</script>
+</th:block>
+</body>
+</html>
+
